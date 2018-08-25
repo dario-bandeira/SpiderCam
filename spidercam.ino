@@ -3,19 +3,16 @@ int boxX = 6888;
 int boxY = 5166;
 int boxZ = 4920;
 
-
 //initial position of the ball (center of the box)
 int axisX = 3444;
 int axisY = 2583;
 int axisZ = 2460;
-
 
 float calculateHypotenuse(float leg1, float leg2){
   float result;
   result = sqrt( pow(leg1, 2) + pow(leg2, 2) );
   return result;
 }
-
 
 float calculateWire(int wire){
   float aux = 0;
@@ -39,11 +36,9 @@ float calculateWire(int wire){
   return aux;
 }
 
-
 //defining initial length to wires (equals at the beginning)
 float aux = calculateWire(0);
 float wiresLength[4] = {aux,aux,aux,aux};
-
 
 //ports of motors
 int motors[4][4] = {
@@ -52,7 +47,6 @@ int motors[4][4] = {
   {30,31,32,33},
   {34,35,36,37}
 };
-
 
 //an array to store the index of active port of each motor
 int activePorts[4] = {0,0,0,0}; // motor0, motor1, motor2, motor3
@@ -120,7 +114,6 @@ void setup() {
   pinMode(36,OUTPUT);
   pinMode(37,OUTPUT);
 
-
   //turning on the initial ports of each motor
   digitalWrite(motors[0][activePorts[0]],HIGH);
   digitalWrite(motors[1][activePorts[1]],HIGH);
@@ -128,7 +121,6 @@ void setup() {
   digitalWrite(motors[3][activePorts[3]],HIGH);
   
   Serial.begin(9600);
-  
 }
 
 void loop() {
@@ -155,5 +147,4 @@ void loop() {
       giveSteps(x, newWiresLength[x] - wiresLength[x]);
     }
   }
-  
 }
