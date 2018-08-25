@@ -16,6 +16,7 @@ You have to convert the measures to "motor steps", that is, how many steps your 
 ![box axes](https://github.com/dario-bandeira/SpiderCam/blob/master/img/spidercam_dimensions.jpg)
 
 You have to define a Zero point and start the measures from there (in steps).
+x 
 
 ## 3. The ball position
 **Important**: the ball position is where the wires meet, not the center of the ball!
@@ -23,3 +24,46 @@ You have to define a Zero point and start the measures from there (in steps).
 
 # The calculations
 ![box triangles](https://github.com/dario-bandeira/SpiderCam/blob/master/img/spidercam_triangles.jpg)
+
+To find out the wire length, you calculate the hypotenuse of two imaginary triangles (t1 and t2 on the figure) using Pythagorean theorem.
+```
+hypotenuse = sqrt( pow(leg1, 2) + pow(leg2, 2) );
+```
+Triangle 1:
+leg1 = x
+leg2 = box width - y
+
+Triangle 2:
+leg1 = the hypotenuse of triangle 1
+leg2 = z
+
+The hypotenuse of triangle 2 is the wire.
+
+# Movement
+You take an imaginary point inside the box where you want the ball to goes to. Then you repeat the calculations considering that new point.
+Now you know the actual lengths of the wires and the lenghts they have to have to move the ball to the desired point, so make the motors do the movement.
+
+**Caution:** be sure the motors are gonna move synchronized to avoid overload on the wires.
+
+###### How to do this?
+
+Lets supose the motors have to give this amount of steps to reach the desired point:
+
+motor 0: 200 steps
+motor 1: 100 steps
+motor 2: 60 steps
+motor 3: 50 steps
+
+You're gonna have several **cycles** of steps. On each cycle, you divide the higher value by the lower. In this case:
+```
+200/50 = 4
+```
+So the 'motor 0' gives 4 steps in this cycle.
+Repeating the calculation, we have this:
+
+```
+motor 0: 4 steps
+motor 1: 2 steps
+motor 2: 1,2 steps
+motor 3: 1 steps
+```
