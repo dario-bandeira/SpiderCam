@@ -8,15 +8,15 @@ int axisX = 3444;
 int axisY = 2583;
 int axisZ = 2460;
 
-//ports of motors
+//ports of motors on Arduino Mega
 int motors[4][4] = {
-  {22,23,24,25},
-  {26,27,28,29},
-  {30,31,32,33},
-  {34,35,36,37}
+  {22,23,24,25}, //motor0
+  {26,27,28,29}, //motor1
+  {30,31,32,33}, //motor2
+  {34,35,36,37}  //motor3
 };
 
-//where the ball has to go
+//where the ball has to go to
 int destination[3] = {x,y,z};
 
 //an array to store the index of active port of each motor
@@ -32,8 +32,7 @@ int howManySteps[4] = {0,0,0,0}; //motor0, motor1, motor2, motor3
 float leftOuts[4] = {0,0,0,0};
 
 float calculateHypotenuse(float leg1, float leg2){
-  float result;
-  result = sqrt( pow(leg1, 2) + pow(leg2, 2) );
+  float result = sqrt( pow(leg1, 2) + pow(leg2, 2) );
   return result;
 }
 
@@ -88,6 +87,7 @@ void giveSteps(int motor, int steps){
       digitalWrite(motors[motor][activePorts[motor]],LOW);
     }
   }
+  digitalWrite(motors[motor][activePorts[motor]],HIGH); //keep the current port on
 }
 
 float copyArray(float arrayA[], float arrayB[]){ //previously declared, 4 positions only
@@ -139,9 +139,6 @@ void goToDestination(){
   }//end of cycles
 }
 
-
-//movo os fios
-//gravo a posição atual
 void setup() {
   pinMode(22,OUTPUT);
   pinMode(23,OUTPUT);
