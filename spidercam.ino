@@ -8,38 +8,6 @@ int axisX = 3444;
 int axisY = 2583;
 int axisZ = 2460;
 
-float calculateHypotenuse(float leg1, float leg2){
-  float result;
-  result = sqrt( pow(leg1, 2) + pow(leg2, 2) );
-  return result;
-}
-
-float calculateWire(int wire){
-  float aux = 0;
-
-  // calculating the hypotenuse of the first triangle
-  if(wire == 0){
-    aux = calculateHypotenuse(axisX, axisY);
-  } else if(wire == 1){
-    aux = calculateHypotenuse(boxX - axisX, axisY);
-  } else if(wire == 2){
-    aux = calculateHypotenuse(boxX - axisX, boxY - axisY);
-  } else if(wire == 3) {
-    aux = calculateHypotenuse(axisX, boxY - axisY);
-  } else {
-    Serial.println("Wrong wire!");
-  }
-  
-  // calculating the hypotenuse of the second triangle,
-  // which is the wire
-  aux = calculateHypotenuse(aux, axisZ);
-  return aux;
-}
-
-//defining initial length to wires (equals at the beginning)
-float aux = calculateWire(0);
-float wiresLength[4] = {aux,aux,aux,aux};
-
 //ports of motors
 int motors[4][4] = {
   {22,23,24,25},
@@ -47,6 +15,9 @@ int motors[4][4] = {
   {30,31,32,33},
   {34,35,36,37}
 };
+
+//where the ball has to go
+int destination[3] = {x,y,z};
 
 //an array to store the index of active port of each motor
 int activePorts[4] = {0,0,0,0}; // motor0, motor1, motor2, motor3
@@ -56,6 +27,37 @@ float newWiresLength[4] = {0,0,0,0};
 
 //speed of motors spining. The higher, the slower.
 int m_speed = 10;
+
+int howManySteps[4] = {0,0,0,0}; //motor0, motor1, motor2, motor3
+float leftOuts[4] = {0,0,0,0};
+
+float calculateHypotenuse(float leg1, float leg2){
+  float result;
+  result = sqrt( pow(leg1, 2) + pow(leg2, 2) );
+  return result;
+}
+
+float calculateWire(int destination[3]){
+
+  float aux0 = calculateHypotenuse(axisX, axisY);
+  float aux1 = calculateHypotenuse(boxX - axisX, axisY);
+  float aux2 = calculateHypotenuse(boxX - axisX, boxY - axisY);
+  float aux3 = calculateHypotenuse(axisX, boxY - axisY);
+  
+  newWiresLength[0] = calculateHypotenuse(aux0, axisZ);
+  newWiresLength[1] = calculateHypotenuse(aux1, axisZ);
+  newWiresLength[2] = calculateHypotenuse(aux2, axisZ);
+  newWiresLength[3] = calculateHypotenuse(aux3, axisZ);
+}
+
+//defining initial length to wires (equals at the beginning)
+calculateWire(destination);
+float wiresLength[4] = {
+  newWiresLength[0],
+  newWiresLength[1],
+  newWiresLength[2],
+  newWiresLength[3]
+};
 
 void giveSteps(int motor, int steps){
   digitalWrite(motors[motor][activePorts[motor]],LOW); //turn off the current port
@@ -88,14 +90,58 @@ void giveSteps(int motor, int steps){
   }
 }
 
-
 float copyArray(float arrayA[], float arrayB[]){ //previously declared, 4 positions only
   for(int x=0; x<4; x++){
     arrayB[x] = arrayA[x];
   }
 }
 
+int getSmaller(int a[4]){
+  int aux = a[0];
+  for(int x=1; x<=3; x++){
+    if(a[x] < aux){
+      aux = a[x];
+    }
+  }
+  return aux;
+}
 
+void goToDestination(){
+  calculateWire(destination);
+
+  for(int x=0; x<4; x++){
+    howManySteps[x] = newWiresLength[x] - wiresLength[x];
+  }
+
+  int smaller = getSmaller(howManySteps);
+
+  int integerPart;
+  float decimalPart;
+
+  //cycles...
+  for(int x = smaller; x > 0; x--){
+    //applying the leftOuts to the amount of steps to give
+    for(int y=0; y<4; y++){
+      howManySteps[y] += leftOuts[y];
+    }
+    //emptying the 'leftOuts' array
+    leftOuts[] = {0,0,0,0};
+
+    //giving steps on the 4 motors...
+    for(int y=0; y<4; y++){
+      integerPart = howManySteps[y] / smaller;
+      decimalPart = (howManySteps[y] / smaller) - floor(howManySteps[y]);
+
+      leftOuts[y] = decimalPart;
+      giveSteps(y, integerPart);
+    }
+
+  }//end of cycles
+}
+
+
+//movo os fios
+//gravo a posição atual
 void setup() {
   pinMode(22,OUTPUT);
   pinMode(23,OUTPUT);
@@ -126,25 +172,8 @@ void setup() {
 void loop() {
   // moving the ball just on X axis
   // between x = 800 and x = 6000
-  while(axisX > 800){
-    axisX--;
-    for(int x=0; x<4; x++){
-      newWiresLength[x] = calculateWire(x);
-    }
-    
-    for(int x=0; x<4; x++){
-      giveSteps(x, newWiresLength[x] - wiresLength[x]);
-    }
-  }
-
-  while(axisX < 6000){
-    axisX++;
-    for(int x=0; x<4; x++){
-      newWiresLength[x] = calculateWire(x);
-    }
-    
-    for(int x=0; x<4; x++){
-      giveSteps(x, newWiresLength[x] - wiresLength[x]);
-    }
-  }
+  destination[] = {800,y,z};
+  goToDestination();
+  destination[] = {6000,y,z};
+  goToDestination();
 }
