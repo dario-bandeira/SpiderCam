@@ -69,12 +69,12 @@ motor 1: 100 steps<br>
 motor 2: 60 steps<br>
 motor 3: 50 steps
 
-The entire movement is divided in **cycles**. To find out the amount of steps each motor have to give **in a single cycle**, divide its number of steps by the lower one.<br>
+The entire movement is divided in **cycles**. To find out the amount of steps each motor have to give **in a single cycle**, divide its number of steps by the smaller one.<br>
 For exemple:
 
 ```
 motor 0: 200 steps
-motor 3: 50 steps (the lower value of all)
+motor 3: 50 steps (the smaller value of all)
 
 200/50 = 4
 ```
@@ -126,7 +126,7 @@ leftout 3: 0
 Keep doing this until this leftout reaches the value of 1 or more. When it happens, you have 1 more step to give to this motor in the next cycle.
 
 This process will take the ball to the desired point.<br>
-**Note:** the total number of cycles is the same of the lower value of steps. In this case, 50.
+**Note:** the total number of cycles is the same of the smaller value of steps. In this case, 50.
 
 ### For next versions
 A joystick (or a keyboard) is gonna tell the directions and the speed of the movement.
