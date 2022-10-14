@@ -44,7 +44,7 @@ Repita isto para os 4 fios.
 
 # Movimento
 Defina um ponto imaginário dentro da caixa pra onde você quer que a bola vá. Então você repete o cálculo acima considerando o novo ponto.
-Agora que você sabe os comprimentos atuais dos fios e os comprimentos que eles tem que ter para segurar a bola na posição desejada, ntão faça os motores fazerem o movimento.
+Agora que você sabe os comprimentos atuais dos fios e os comprimentos que eles tem que ter para segurar a bola na posição desejada, então faça os motores fazerem o movimento.
 
 Para cada fio você faz `novoComprimento - atualComprimento`, se der um valor positivo você libera este fio, se der um valor negativo você puxa este fio.
 
@@ -96,10 +96,10 @@ Note que o motor 2 tem um valor decimal de passos, não é possível fazer isto 
 ```
 Depois de separar a parte decimal:
 
-motor 0: 4 steps
-motor 1: 2 steps
-motor 2: 1 step
-motor 3: 1 step
+motor 0: 4 passos
+motor 1: 2 passos
+motor 2: 1 passo
+motor 3: 1 passo
 
 sobra 0: 0
 sobra 1: 0
