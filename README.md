@@ -2,131 +2,131 @@
 
 ![spidercam demonstration](https://github.com/dario-bandeira/SpiderCam/blob/master/img/spidercam_demonstration.gif)
 
-This project is a prototype of a camera like <a href="https://youtu.be/wor4BFjbIyI?t=1m32s" target="_blank">this one</a> for Arduino.
-It's still simple and boring, just make an eternal movement in X axis like a loop, but in the future I'm gonna build a version controled by joystick.
+Este projeto é um protótipo de câmera como <a href="https://youtu.be/wor4BFjbIyI?t=1m32s" target="_blank">esta</a> para Arduino.
+Ainda está simples e tedioso, só faz um movimento infinito no eixo X, mas no futuro vou construir uma versão controlada por joystick.
 
-To build your own, you have to consider 3 things:
+Para construir o seu próprio, você deve considerar 3 coisas:
 
-## 1. Box measures
+## 1. Medidas da caixa
 ![box measures](https://github.com/dario-bandeira/SpiderCam/blob/master/img/spidercam_measures.jpg)
 
-You have to convert the measures to "motor steps", that is, how many steps your motor have to give to roll (for exemple) 40cm of wire. In my case it is 4920, that means my box has 4920 steps high.
+Você deve converter as medidas para "passos de motor", isto é, quantos passos seu motor tem que dar para enrolar (por exemplo) 40cm de fio. No meu caso são 4920, isso significa que minha caixa tem 4920 passos de altura.
 
-## 2. Box Axes
+## 2. Eixos da caixa
 ![box axes](https://github.com/dario-bandeira/SpiderCam/blob/master/img/spidercam_dimensions.jpg)
 
-You have to define a Zero point and start the measures from there (in steps).
+Você deve definir um ponto zero e começar as medidas a partir dele (em passos).
 
-## 3. The ball position
-It's given by the variables `x`, `y` and `z`, which are the values in the 3 dimensions.<br>
-**Important**: the ball position is where the wires meet, not the center of the ball!
+## 3. A posição da bola
+É dada pelas variáveis `x`, `y` e `z`, que são os valores nas 3 dimensões.<br>
+**Importante**: para o algoritmo, a posição da bola é onde os fios se encontram, não o centro da bola!
 
 
-# The calculations
+# Os cálculos
 ![box triangles](https://github.com/dario-bandeira/SpiderCam/blob/master/img/spidercam_triangles.jpg)
 
-Define an initial position to the ball inside the box before starting the movement.<br>
-To calculate the wire length at this time, you calculate the hypotenuse of two imaginary triangles (t1 and t2 on the figure) using Pythagorean theorem.
+Defina um ponto inicial para a bola dentro da caixa antes de começar o movimento.<br>
+Para calcular o comprimento do fio neste momento, você calcula a hipotenusa de dois triângulos imaginários (t1 e t2 na figura) usando teorema de Pitágoras.
 ```
-hypotenuse = sqrt( pow(leg1, 2) + pow(leg2, 2) );
+hipotenusa = sqrt( pow(cateto1, 2) + pow(cateto2, 2) );
 ```
-**Triangle 1:**<br>
-leg1 = x<br>
-leg2 = box width - y
+**Triângulo 1:**<br>
+cateto1 = x<br>
+cateto2 = box width - y
 
 
-**Triangle 2:**<br>
-leg1 = the hypotenuse of triangle 1<br>
-leg2 = z
+**Triângulo 2:**<br>
+cateto1 = a hipotenusa do triângulo 1<br>
+cateto2 = z
 
-The hypotenuse of triangle 2 is the wire.
-Repeat this for the 4 wires.
+A hipotenusa do triângulo 2 é o fio.
+Repita isto para os 4 fios.
 
-# Movement
-You take an imaginary point inside the box where you want the ball to goes to. Then you repeat the calculation above considering that new point.
-Now you know the actual lengths of the wires and the lenghts they have to have to hold the ball on the desired position, so make the motors do the movement.
+# Movimento
+Defina um ponto imaginário dentro da caixa pra onde você quer que a bola vá. Então você repete o cálculo acima considerando o novo ponto.
+Agora que você sabe os comprimentos atuais dos fios e os comprimentos que eles tem que ter para segurar a bola na posição desejada, ntão faça os motores fazerem o movimento.
 
-For each wire you do `newLength - actualLength`, if you got a positive value you release this wire, if you got a negative value you pull this wire.
+Para cada fio você faz `novoComprimento - atualComprimento`, se der um valor positivo você libera este fio, se der um valor negativo você puxa este fio.
 
-Exemple:<br>
+Exemplo:<br>
 ```
-actualLength = 3460;
-newLength = 2940;
+atualComprimento = 3460;
+novoComprimento = 2940;
 
-newLength - actualLength = -520
+novoComprimento - atualComprimento = -520
 
-So this wire have to be pulled 520 steps.
+Então este fio deve ser puxado 520 passos.
 ```
 
-**Caution:** be sure the motors will move synchronized to avoid overload on the wires.
+**Cuidado:** garanta que os motores vão mover sincronizados para evitar sobrepeso nos fios.
 
-###### How to do this?
+###### Como fazer isto?
 
-Lets supose the motors have to give this amount of steps to reach the desired point:
+Suponhamos que os motores tem que dar esta quantidade de passos para alcançar o ponto desejado:
 
-motor 0: 200 steps<br>
-motor 1: 100 steps<br>
-motor 2: 60 steps<br>
-motor 3: 50 steps
+motor 0: 200 passos<br>
+motor 1: 100 passos<br>
+motor 2: 60 passos<br>
+motor 3: 50 passos
 
-The entire movement is divided in **cycles**. To find out the amount of steps each motor have to give **in a single cycle**, divide its number of steps by the smaller one.<br>
-For exemple:
+O movimento inteiro é dividido em **ciclos**. Para descobrir a quantidade de passos que cada motor tem que dar **em um único ciclo**, divida seu número de passos pelo menor deles.<br>
+Por exemplo:
 
 ```
-motor 0: 200 steps
-motor 3: 50 steps (the smaller value of all)
+motor 0: 200 passos
+motor 3: 50 passos (o menor valor de todos)
 
 200/50 = 4
 ```
 
-So the 'motor 0' have to give 4 steps in each cycle.<br>
-Repeat this calculation to all motors.
+Então o 'motor 0' tem que dar 4 passos em cada ciclo.<br>
+Repita este cálculo para todos os motores.
 
 ```
-Steps in first cycle:
+Passos no primeiro ciclo:
 
-motor 0: 4 steps
-motor 1: 2 steps
-motor 2: 1,2 steps
-motor 3: 1 step
+motor 0: 4 passos
+motor 1: 2 passos
+motor 2: 1,2 passos
+motor 3: 1 passos
 ```
 
-Note that motor 2 has a decimal value of steps, you cant do this in a stepper motor. So you have to store the leftout to apply on the next cycle to avoid the wire getting loose.
+Note que o motor 2 tem um valor decimal de passos, não é possível fazer isto num motor de passos. Então você deve armazenar a parte decimal e aplicar no próximo ciclo para evitar que o fio fique apertado ou frouxo.
 
 ```
-After separing the leftout:
-
-motor 0: 4 steps
-motor 1: 2 steps
-motor 2: 1 step
-motor 3: 1 step
-
-leftout 0: 0
-leftout 1: 0
-leftout 2: 0,2
-leftout 3: 0
-```
-
-Do the first cycle, apply the previous leftout on the next cycle and store the leftouts again.
-
-```
-Second cycle will be:
+Depois de separar a parte decimal:
 
 motor 0: 4 steps
 motor 1: 2 steps
 motor 2: 1 step
 motor 3: 1 step
 
-leftout 0: 0
-leftout 1: 0
-leftout 2: 0,4 <--
-leftout 3: 0
+sobra 0: 0
+sobra 1: 0
+sobra 2: 0,2 (este motor teve uma "sobra" de 0,2 passo)
+sobra 3: 0
 ```
 
-Keep doing this until this leftout reaches the value of 1 or more. When it happens, you have 1 more step to give to this motor in the next cycle.
+Faça o ciclo, aplique a sobra no próximo ciclo e armazene as sobras de novo, se houver.
 
-This process will take the ball to the desired point.<br>
-**Note:** the total number of cycles is the same of the smaller value of steps. In this case, 50.
+```
+O segundo ciclo será:
 
-### For next versions
-A joystick (or a keyboard) is gonna tell the directions and the speed of the movement.
+motor 0: 4 passos
+motor 1: 2 passos
+motor 2: 1 passo
+motor 3: 1 passo
+
+sobra 0: 0
+sobra 1: 0
+sobra 2: 0,4 <-- (houve mais 0,2 passo de sobra, somada à sobra anterior ficou 0,4)
+sobra 3: 0
+```
+
+Continue fazendo isto até que as sobras alcancem um valor inteiro. Quando isto acontecer, você tem 1 passo a mais para dar para este motor no próximo ciclo.
+
+Este processo levará a bola para o ponto desejado.<br>
+**Nota:** o número total de ciclos é o mesmo que o menor valor de passos. Neste caso, 50.
+
+### Para as próximas versões
+Um joystick (ou um teclado) dirá as direções e a velocidade do movimento.
